@@ -1,11 +1,108 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="UTF-8" />
-    <title>Cache reset</title>
-  </head>
-  <body>
-    <h1>NEW FILE LOADED ✅</h1>
-    <p>If you see this, the cache issue is resolved.</p>
-  </body>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Daily Dose</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: #f7f5f2;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .card {
+      background: white;
+      max-width: 520px;
+      padding: 2rem;
+      margin: 1rem;
+      border-radius: 18px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+      text-align: center;
+    }
+
+    h1 {
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+    }
+
+    p {
+      font-size: 1.05rem;
+      line-height: 1.6;
+    }
+
+    img {
+      width: 100%;
+      margin-top: 1.25rem;
+      border-radius: 12px;
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+  <main class="card">
+    <h1 id="title">Loading…</h1>
+    <p id="text"></p>
+    <img id="image" />
+  </main>
+
+  <script>
+    // 🔹 FILL THESE IN
+    const SHEET_ID = "1E9gjeth0nx2iel6OWRpkDVdxUlqRrZJW8r6-zQky4aw";
+    const SHEET_NAME = "Daily Dose";
+
+    const query = encodeURIComponent("SELECT A, B, C, D");
+    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=${SHEET_NAME}&tq=${query}`;
+
+    fetch(url)
+      .then(res => res.text())
+      .then(text => {
+        const json = JSON.parse(text.substring(47).slice(0, -2));
+        const rows = json.table.rows;
+
+        const today = new Date();
+        const todayMonth = today.getMonth();
+        const todayDay = today.getDate();
+
+        let match = null;
+
+        rows.forEach(r => {
+          if (!r.c[0]) return;
+          const d = new Date(r.c[0].v);
+          if (
+            d.getMonth() === todayMonth &&
+            d.getDate() === todayDay
+          ) {
+            match = r;
+          }
+        });
+
+        if (!match) match = rows[todayDay % rows.length];
+
+        document.getElementById("title").innerText = match.c[1]?.v || "";
+        document.getElementById("text").innerText = match.c[2]?.v || "";
+
+        const img = document.getElementById("image");
+        const imgUrl = match.c[3]?.v;
+
+        if (imgUrl) {
+          img.src = imgUrl;
+          img.style.display = "block";
+        }
+      })
+      .catch(err => {
+        document.getElementById("title").innerText = "Error loading content";
+        document.getElementById("text").innerText = err.toString();
+        console.error(err);
+      });
+  </script>
+</body>
 </html>
