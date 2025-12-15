@@ -10,13 +10,16 @@
 
   <link rel="stylesheet" href="styles.css">
 </head>
+  <script>
+  document.getElementById("title").innerText = "INLINE JS WORKS ✅";
+  document.getElementById("text").innerText =
+    "This confirms the live page is updating.";
+</script>
 <body>
   <main class="card fade-in">
     <h1 id="title">Loading…</h1>
     <p id="text"></p>
     <img id="image" />
   </main>
-
-<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 </body>
 </html>
