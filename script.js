@@ -1,3 +1,2 @@
-document.getElementById("title").innerText = "JS is running ✅";
-document.getElementById("text").innerText =
-  "This confirms script.js is executing on GitHub Pages.";
+document.getElementById("title").innerText = "DEPLOY CONFIRMED ✅";
+document.getElementById("text").innerText = "GitHub Pages is now serving the latest build.";
