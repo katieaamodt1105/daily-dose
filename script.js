@@ -7,30 +7,32 @@ fetch(SHEET_URL)
     const headers = rows[0].map(h => h.trim().toLowerCase());
     const data = rows.slice(1);
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
     const dateIndex = headers.indexOf("date");
     const titleIndex = headers.indexOf("title");
     const textIndex = headers.indexOf("text");
     const imageIndex = headers.indexOf("image");
 
+    const today = new Date();
+    const todayMonth = today.getMonth();
+    const todayDay = today.getDate();
+
     let todayRow = null;
 
     for (let row of data) {
       const rowDate = new Date(row[dateIndex]);
-      rowDate.setHours(0, 0, 0, 0);
-
-      if (rowDate.getTime() === today.getTime()) {
+      if (
+        rowDate.getMonth() === todayMonth &&
+        rowDate.getDate() === todayDay
+      ) {
         todayRow = row;
         break;
       }
     }
 
-    // Fallback: rotate by day if exact date not found
+    // Fallback: rotate if no match
     if (!todayRow) {
-      const dayIndex = today.getDate() % data.length;
-      todayRow = data[dayIndex];
+      const index = todayDay % data.length;
+      todayRow = data[index];
     }
 
     document.getElementById("title").innerText =
