@@ -182,6 +182,14 @@
     </div>
 
     <p id="photo-meta" class="photo-meta">A picture's worth a thousand words</p>
+<iframe
+  id="gif"
+  width="100%"
+  height="280"
+  frameborder="0"
+  allowfullscreen
+  style="display:none; border-radius:18px;">
+</iframe>
 
     <iframe
       id="spotify"
@@ -259,6 +267,25 @@ if (isBirthday) {
 
 const content = sourceRow?.c[2]?.v || "";
 const imageUrl = sourceRow?.c[3]?.v;
+
+const gifEl = document.getElementById("gif");
+
+// Reset
+imgEl.style.display = "none";
+gifEl.style.display = "none";
+
+// If it's a Tenor/GIF embed → iframe
+if (imageUrl && imageUrl.includes("tenor.com/embed")) {
+  gifEl.src = imageUrl;
+  gifEl.style.display = "block";
+}
+
+// Otherwise treat it like a normal image
+else if (imageUrl) {
+  imgEl.src = imageUrl;
+  imgEl.style.display = "block";
+  metaEl.style.display = "block";
+}
 const spotifyUrl = sourceRow?.c[4]?.v;
 
 
