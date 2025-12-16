@@ -174,8 +174,15 @@ body.bg-2 {
     fetch(url)
       .then(res => res.text())
       .then(text => {
-        const json = JSON.parse(text.substring(47).slice(0, -2));
+const jsonText = text.substring(
+  text.indexOf("{"),
+  text.lastIndexOf("}") + 1
+);
+const json = JSON.parse(jsonText);
         const rows = json.table.rows;
+        if (!rows || rows.length === 0) {
+  throw new Error("No rows returned from sheet");
+}
 
        const today = new Date();
 const todayMonth = today.getMonth();
