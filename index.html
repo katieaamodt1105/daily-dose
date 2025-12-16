@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Daily Dose</title>
 
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&family=Playfair+Display:ital,wght@0,500;1,500&display=swap" rel="stylesheet">
 
   <style>
     body {
@@ -27,6 +28,15 @@
       border-radius: 20px;
       box-shadow: 0 14px 40px rgba(0,0,0,0.08);
       text-align: center;
+      animation: fadeUp 0.6s ease-out;
+    }
+
+    .date {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      color: #888;
+      margin-bottom: 1.25rem;
+      font-style: italic;
     }
 
     .text-content {
@@ -35,17 +45,36 @@
       margin-bottom: 1.5rem;
     }
 
+    .photo-wrapper {
+      position: relative;
+      border-radius: 18px;
+      overflow: hidden;
+      margin-bottom: 0.75rem;
+    }
+
+    .photo-wrapper::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to bottom,
+        rgba(0,0,0,0) 60%,
+        rgba(0,0,0,0.15)
+      );
+    }
+
     img {
       width: 100%;
-      border-radius: 14px;
-      margin-bottom: 0.75rem;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
       display: none;
     }
 
-    .caption {
-      font-size: 0.95rem;
-      color: #666;
-      line-height: 1.6;
+    .photo-meta {
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #999;
       margin-bottom: 1.25rem;
       display: none;
     }
@@ -55,64 +84,31 @@
       border-radius: 14px;
       display: none;
     }
-    .photo-wrapper {
-  position: relative;
-  border-radius: 18px;
-  overflow: hidden;
-  margin-bottom: 1.5rem;
-}
 
-.photo-wrapper::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    to bottom,
-    rgba(0,0,0,0) 60%,
-    rgba(0,0,0,0.15)
-  );
-}
-.photo-meta {
-  font-size: 0.75rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #999;
-  margin-top: 0.5rem;
-}
-.card.photo-day {
-  padding: 1.5rem;
-}
-
-    .card {
-  animation: fadeUp 0.6s ease-out;
-}
-
-@keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-img {
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
-}
-
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
   </style>
 </head>
 
 <body>
   <main class="card">
+    <div id="date" class="date"></div>
+
     <p id="content" class="text-content"></p>
 
-   <div class="photo-wrapper">
-  <img id="image" />
-</div>
-<p id="photo-meta" class="photo-meta"></p>
+    <div class="photo-wrapper">
+      <img id="image" />
+    </div>
+
+    <p id="photo-meta" class="photo-meta">A memory</p>
 
     <iframe
       id="spotify"
@@ -125,7 +121,21 @@ img {
 
   <script>
     const SHEET_ID = "1E9gjeth0nx2iel6OWRpkDVdxUlqRrZJW8r6-zQky4aw";
-    const SHEET_NAME = "Sheet1"; // change if your tab name is different
+    const SHEET_NAME = "Sheet1";
+
+    function getPreviewType() {
+      const params = new URLSearchParams(window.location.search);
+      const preview = params.get("preview");
+      return preview ? preview.toLowerCase().trim() : null;
+    }
+
+    function formatDate(date) {
+      return date.toLocaleDateString(undefined, {
+        weekday: "long",
+        month: "long",
+        day: "numeric"
+      });
+    }
 
     const query = encodeURIComponent("SELECT A,B,C,D,E");
     const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=${SHEET_NAME}&tq=${query}`;
@@ -140,63 +150,52 @@ img {
         const todayMonth = today.getMonth();
         const todayDay = today.getDate();
 
-        let match = null;
-
-        rows.forEach(r => {
-          if (!r.c[0]) return;
+        let match = rows.find(r => {
+          if (!r.c[0]) return false;
           const d = new Date(r.c[0].v);
-          if (d.getMonth() === todayMonth && d.getDate() === todayDay) {
-            match = r;
-          }
-        });
+          return d.getMonth() === todayMonth && d.getDate() === todayDay;
+        }) || rows[todayDay % rows.length];
 
-        if (!match) {
-          match = rows[todayDay % rows.length];
-        }
+        const previewType = getPreviewType();
+        const type = previewType
+          ? previewType
+          : (match.c[1]?.v || "").toLowerCase().trim();
 
-        const type = match.c[1]?.v;
-        const content = match.c[2]?.v;
+        const content = match.c[2]?.v || "";
         const imageUrl = match.c[3]?.v;
         const spotifyUrl = match.c[4]?.v;
 
+        // Elements
+        const dateEl = document.getElementById("date");
         const contentEl = document.getElementById("content");
         const imgEl = document.getElementById("image");
-        const captionEl = document.getElementById("caption");
+        const metaEl = document.getElementById("photo-meta");
         const spotifyEl = document.getElementById("spotify");
 
         // Reset
         contentEl.style.display = "none";
         imgEl.style.display = "none";
-        captionEl.style.display = "none";
+        metaEl.style.display = "none";
         spotifyEl.style.display = "none";
+
+        dateEl.innerText = formatDate(today);
 
         const textTypes = ["affirmation", "quote", "fortune", "funny"];
 
-        // TEXT TYPES
         if (textTypes.includes(type)) {
-          contentEl.innerText = content || "";
+          contentEl.innerText = content;
           contentEl.style.display = "block";
         }
 
-        // PHOTO
-        if (type === "photo") {
-          if (imageUrl) {
-            imgEl.src = imageUrl;
-            imgEl.style.display = "block";
-          }
-
-          if (content) {
-            captionEl.innerText = content;
-            captionEl.style.display = "block";
-          }
+        if (type === "photo" && imageUrl) {
+          imgEl.src = imageUrl;
+          imgEl.style.display = "block";
+          metaEl.style.display = "block";
         }
 
-        // LYRIC
         if (type === "lyric") {
-          if (content) {
-            contentEl.innerText = content;
-            contentEl.style.display = "block";
-          }
+          contentEl.innerText = content;
+          contentEl.style.display = "block";
 
           if (spotifyUrl) {
             spotifyEl.src = spotifyUrl.replace(
@@ -207,25 +206,10 @@ img {
           }
         }
       })
-
-      document.querySelector(".card").classList.remove("photo-day");
-
-if (type === "photo") {
-  document.querySelector(".card").classList.add("photo-day");
-}
-
       .catch(err => {
         document.getElementById("content").innerText = "Error loading content.";
         console.error(err);
       });
-    if (type === "photo") {
-  document.getElementById("photo-meta").innerText = "A memory";
-}
-
-    function getForcedTypeFromURL() {
-  const params = new URLSearchParams(window.location.search);
-  return params.get("preview");
-}
   </script>
 </body>
 </html>
