@@ -162,10 +162,13 @@
           : (match.c[1]?.v || "").toLowerCase().trim();
 
         const sourceRow = previewType
-  ? rows.find(r =>
-      (r.c[1]?.v || "").toLowerCase().trim() === previewType
-    )
+  ? rows.find(r => {
+      const cell = r.c[1];
+      if (!cell || !cell.v) return false;
+      return String(cell.v).toLowerCase().trim() === previewType;
+    })
   : match;
+
 
 const content = sourceRow?.c[2]?.v || "";
 const imageUrl = sourceRow?.c[3]?.v;
