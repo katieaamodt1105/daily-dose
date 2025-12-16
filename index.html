@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Daily Dose</title>
 
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
 
   <style>
     body {
@@ -14,34 +14,45 @@
       margin: 0;
       min-height: 100vh;
       display: flex;
-      justify-content: center;
       align-items: center;
+      justify-content: center;
     }
 
     .card {
-      background: white;
+      background: #ffffff;
       max-width: 520px;
-      padding: 2rem;
+      width: 100%;
+      padding: 2.25rem;
       margin: 1rem;
-      border-radius: 18px;
-      box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+      border-radius: 20px;
+      box-shadow: 0 14px 40px rgba(0,0,0,0.08);
       text-align: center;
     }
 
-    h1 {
-      font-weight: 600;
-      margin-bottom: 0.75rem;
-    }
-
-    p {
-      font-size: 1.05rem;
-      line-height: 1.6;
+    .text-content {
+      font-size: 1.25rem;
+      line-height: 1.9;
+      margin-bottom: 1.5rem;
     }
 
     img {
       width: 100%;
-      margin-top: 1.25rem;
-      border-radius: 12px;
+      border-radius: 14px;
+      margin-bottom: 0.75rem;
+      display: none;
+    }
+
+    .caption {
+      font-size: 0.95rem;
+      color: #666;
+      line-height: 1.6;
+      margin-bottom: 1.25rem;
+      display: none;
+    }
+
+    iframe {
+      margin-top: 1rem;
+      border-radius: 14px;
       display: none;
     }
   </style>
@@ -49,17 +60,25 @@
 
 <body>
   <main class="card">
-    <h1 id="title">Loading…</h1>
-    <p id="text"></p>
+    <p id="content" class="text-content"></p>
+
     <img id="image" />
+    <p id="caption" class="caption"></p>
+
+    <iframe
+      id="spotify"
+      width="100%"
+      height="152"
+      frameborder="0"
+      allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture">
+    </iframe>
   </main>
 
   <script>
-    // 🔹 FILL THESE IN
     const SHEET_ID = "1E9gjeth0nx2iel6OWRpkDVdxUlqRrZJW8r6-zQky4aw";
-    const SHEET_NAME = "Daily Dose";
+    const SHEET_NAME = "Sheet1"; // change if your tab name is different
 
-    const query = encodeURIComponent("SELECT A, B, C, D");
+    const query = encodeURIComponent("SELECT A,B,C,D,E");
     const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=${SHEET_NAME}&tq=${query}`;
 
     fetch(url)
@@ -77,30 +96,70 @@
         rows.forEach(r => {
           if (!r.c[0]) return;
           const d = new Date(r.c[0].v);
-          if (
-            d.getMonth() === todayMonth &&
-            d.getDate() === todayDay
-          ) {
+          if (d.getMonth() === todayMonth && d.getDate() === todayDay) {
             match = r;
           }
         });
 
-        if (!match) match = rows[todayDay % rows.length];
+        if (!match) {
+          match = rows[todayDay % rows.length];
+        }
 
-        document.getElementById("title").innerText = match.c[1]?.v || "";
-        document.getElementById("text").innerText = match.c[2]?.v || "";
+        const type = match.c[1]?.v;
+        const content = match.c[2]?.v;
+        const imageUrl = match.c[3]?.v;
+        const spotifyUrl = match.c[4]?.v;
 
-        const img = document.getElementById("image");
-        const imgUrl = match.c[3]?.v;
+        const contentEl = document.getElementById("content");
+        const imgEl = document.getElementById("image");
+        const captionEl = document.getElementById("caption");
+        const spotifyEl = document.getElementById("spotify");
 
-        if (imgUrl) {
-          img.src = imgUrl;
-          img.style.display = "block";
+        // Reset
+        contentEl.style.display = "none";
+        imgEl.style.display = "none";
+        captionEl.style.display = "none";
+        spotifyEl.style.display = "none";
+
+        const textTypes = ["affirmation", "quote", "fortune", "funny"];
+
+        // TEXT TYPES
+        if (textTypes.includes(type)) {
+          contentEl.innerText = content || "";
+          contentEl.style.display = "block";
+        }
+
+        // PHOTO
+        if (type === "photo") {
+          if (imageUrl) {
+            imgEl.src = imageUrl;
+            imgEl.style.display = "block";
+          }
+
+          if (content) {
+            captionEl.innerText = content;
+            captionEl.style.display = "block";
+          }
+        }
+
+        // LYRIC
+        if (type === "lyric") {
+          if (content) {
+            contentEl.innerText = content;
+            contentEl.style.display = "block";
+          }
+
+          if (spotifyUrl) {
+            spotifyEl.src = spotifyUrl.replace(
+              "https://open.spotify.com/",
+              "https://open.spotify.com/embed/"
+            );
+            spotifyEl.style.display = "block";
+          }
         }
       })
       .catch(err => {
-        document.getElementById("title").innerText = "Error loading content";
-        document.getElementById("text").innerText = err.toString();
+        document.getElementById("content").innerText = "Error loading content.";
         console.error(err);
       });
   </script>
