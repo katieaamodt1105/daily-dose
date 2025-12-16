@@ -20,7 +20,9 @@
     }
 
     .card {
-      background: #ffffff;
+      background:  radial-gradient(circle at top left, #fde8d8 0%, transparent 40%),
+    radial-gradient(circle at bottom right, #e8f1f0 0%, transparent 45%),
+    #ffffff;
       max-width: 520px;
       width: 100%;
       padding: 2.25rem;
@@ -29,15 +31,21 @@
       box-shadow: 0 14px 40px rgba(0,0,0,0.08);
       text-align: center;
       animation: fadeUp 0.6s ease-out;
+}
+
     }
 
     .date {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.1rem;
-      color: #888;
-      margin-bottom: 1.25rem;
-      font-style: italic;
-    }
+  font-family: 'Playfair Display', serif;
+  font-size: 0.95rem;
+  color: #6b6b6b;
+  margin-bottom: 1.25rem;
+  display: inline-block;
+  padding: 0.4rem 0.75rem;
+  border-radius: 999px;
+  background: #f3efe9;
+}
+
 
     .text-content {
       font-size: 1.25rem;
@@ -47,7 +55,7 @@
 
     .photo-wrapper {
       position: relative;
-      border-radius: 18px;
+      border-radius: 24px;
       overflow: hidden;
       margin-bottom: 0.75rem;
     }
@@ -100,7 +108,7 @@
 
 <body>
   <main class="card">
-    <div id="date" class="date"></div>
+    <div id="date" class="date">Your daily dose ✨</div>
 
     <p id="content" class="text-content"></p>
 
@@ -108,7 +116,7 @@
       <img id="image" />
     </div>
 
-    <p id="photo-meta" class="photo-meta">A memory</p>
+    <p id="photo-meta" class="photo-meta">A pictures worth a thousand words</p>
 
     <iframe
       id="spotify"
@@ -187,8 +195,6 @@ const spotifyUrl = sourceRow?.c[4]?.v;
         imgEl.style.display = "none";
         metaEl.style.display = "none";
         spotifyEl.style.display = "none";
-
-        dateEl.innerText = formatDate(today);
 
         const textTypes = ["affirmation", "quote", "fortune", "funny"];
 
