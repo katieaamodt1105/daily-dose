@@ -222,6 +222,10 @@ if (type === "photo") {
   document.getElementById("photo-meta").innerText = "A memory";
 }
 
+    function getForcedTypeFromURL() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get("preview");
+}
   </script>
 </body>
 </html>
