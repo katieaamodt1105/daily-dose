@@ -10,14 +10,15 @@
 
   <style>
     body {
-      font-family: 'Montserrat', sans-serif;
-      background: #f7f5f2;
-      margin: 0;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+  font-family: 'Montserrat', sans-serif;
+  background: #f7f5f2;
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 
     .card {
   background: #ffffff;
@@ -43,18 +44,6 @@
   content: " ✨";
 }
 
-    body.bg-0 {
-  background: #8784cc;
-}
-
-body.bg-1 {
-  background: #9cd5d6;
-}
-
-body.bg-2 {
-  background: #ffc5c5;
-}
-
     .text-content {
       font-size: 1rem;
       line-height: 1.9;
@@ -75,12 +64,15 @@ body.bg-2 {
 }
 
 
-    img {
+   img {
   width: 100%;
-  height: auto;
+  max-height: 65vh; /* fits nicely on mobile screens */
+  object-fit: contain; /* NO cropping */
   display: none;
   border-radius: 18px;
+  margin: 0 auto;
 }
+
 
 
     .photo-meta {
@@ -110,7 +102,7 @@ body.bg-2 {
     }
     
     .lyric {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Montserrat', serif;
   font-size: 1rem;
   line-height: 1.9;
   font-style: italic;
@@ -121,6 +113,56 @@ body.bg-2 {
   border-radius: 999px;
   background: rgba(0,0,0,0.08);
   margin: 0 auto 2rem;
+}
+.birthday-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 999;
+}
+
+.birthday-text {
+  font-family: 'Pacifico', cursive;
+  font-size: clamp(3rem, 10vw, 6rem);
+  color: #ff6f61;
+  animation: popIn 0.8s ease-out forwards,
+             float 2s ease-in-out infinite;
+  text-align: center;
+}
+
+@keyframes popIn {
+  from {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.confetti {
+  position: fixed;
+  width: 8px;
+  height: 12px;
+  background: hsl(var(--hue), 90%, 65%);
+  top: -10px;
+  animation: fall linear forwards;
+  z-index: 998;
+}
+
+@keyframes fall {
+  to {
+    transform: translateY(110vh) rotate(720deg);
+  }
 }
 
 
@@ -188,9 +230,12 @@ const json = JSON.parse(jsonText);
 const todayMonth = today.getMonth();
 const todayDay = today.getDate();
 
-const colors = ["bg-0", "bg-1", "bg-2"];
-const colorIndex = todayDay % colors.length;
-document.body.classList.add(colors[colorIndex]);
+const isBirthday =
+  today.getMonth() === 5 && today.getDate() === 21; // June = 5
+
+if (isBirthday) {
+  launchBirthday();
+}
 
         let match = rows.find(r => {
           if (!r.c[0]) return false;
@@ -266,6 +311,32 @@ const spotifyUrl = sourceRow?.c[4]?.v;
         document.getElementById("content").innerText = "Error loading content.";
         console.error(err);
       });
+
+    function launchBirthday() {
+  // Text
+  const overlay = document.createElement("div");
+  overlay.className = "birthday-overlay";
+
+  const text = document.createElement("div");
+  text.className = "birthday-text";
+  text.innerText = "HAPPY BIRTHDAY! 🎉";
+
+  overlay.appendChild(text);
+  document.body.appendChild(overlay);
+
+  // Confetti
+  for (let i = 0; i < 120; i++) {
+    const piece = document.createElement("div");
+    piece.className = "confetti";
+    piece.style.left = Math.random() * 100 + "vw";
+    piece.style.animationDuration = 3 + Math.random() * 3 + "s";
+    piece.style.setProperty("--hue", Math.random() * 360);
+    document.body.appendChild(piece);
+
+    setTimeout(() => piece.remove(), 6000);
+  }
+}
+
   </script>
 </body>
 </html>
