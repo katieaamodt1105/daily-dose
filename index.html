@@ -6,7 +6,7 @@
   <title>Daily Dose</title>
 
   <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&family=Playfair+Display:ital,wght@0,500;1,500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&family=Playfair+Display:ital,wght@0,500;1,500&family=Pacifico&display=swap" rel="stylesheet">
 
   <style>
     body {
@@ -36,16 +36,32 @@
     }
 
     .date {
-  font-family: 'Playfair Display', serif;
-  font-size: 0.95rem;
-  color: #6b6b6b;
-  margin-bottom: 1.25rem;
+  font-family: 'Pacifico', cursive;
+  font-size: 1.5rem;
+  color: #8a8a8a;
+  margin-bottom: 2.25rem;
   display: inline-block;
   padding: 0.4rem 0.75rem;
   border-radius: 999px;
   background: #f3efe9;
+        transform: rotate(-1deg);
+
+}
+    .date::after {
+  content: " ✨";
 }
 
+    body.bg-0 {
+  background: #8784cc;
+}
+
+body.bg-1 {
+  background: #9cd5d6;
+}
+
+body.bg-2 {
+  background: #ffc5c5;
+}
 
     .text-content {
       font-size: 1.25rem;
@@ -102,7 +118,13 @@
         opacity: 1;
         transform: translateY(0);
       }
-    }
+    .lyric {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.35rem;
+  line-height: 1.9;
+  font-style: italic;
+}
+
   </style>
 </head>
 
@@ -153,6 +175,11 @@
       .then(text => {
         const json = JSON.parse(text.substring(47).slice(0, -2));
         const rows = json.table.rows;
+
+        const colors = ["bg-0", "bg-1", "bg-2"];
+const colorIndex = todayDay % colors.length;
+document.body.classList.add(colors[colorIndex]);
+
 
         const today = new Date();
         const todayMonth = today.getMonth();
@@ -210,16 +237,23 @@ const spotifyUrl = sourceRow?.c[4]?.v;
         }
 
         if (type === "lyric") {
-          contentEl.innerText = content;
-          contentEl.style.display = "block";
+  contentEl.innerText = content;
+  contentEl.classList.add("lyric");
+  contentEl.style.display = "block";
+          contentEl.classList.remove("lyric");
+        }
 
           if (spotifyUrl) {
-            spotifyEl.src = spotifyUrl.replace(
-              "https://open.spotify.com/",
-              "https://open.spotify.com/embed/"
-            );
-            spotifyEl.style.display = "block";
-          }
+  const embedUrl = spotifyUrl.includes("/embed/")
+    ? spotifyUrl
+    : spotifyUrl.replace(
+        "https://open.spotify.com/",
+        "https://open.spotify.com/embed/"
+      );
+
+  spotifyEl.src = embedUrl;
+  spotifyEl.style.display = "block";
+}
         }
       })
       .catch(err => {
