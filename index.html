@@ -31,8 +31,6 @@
       box-shadow: 0 14px 40px rgba(0,0,0,0.08);
       text-align: center;
       animation: fadeUp 0.6s ease-out;
-}
-
     }
 
     .date {
@@ -118,6 +116,8 @@ body.bg-2 {
         opacity: 1;
         transform: translateY(0);
       }
+    }
+    
     .lyric {
   font-family: 'Playfair Display', serif;
   font-size: 1.35rem;
@@ -138,7 +138,7 @@ body.bg-2 {
 
 <body>
   <main class="card">
-    <div id="date" class="date">Your daily dose</div>
+    <div id="date" class="date">Your daily dose ☕️</div>
     <div class="divider"></div>
 
 
@@ -186,14 +186,13 @@ body.bg-2 {
         const json = JSON.parse(text.substring(47).slice(0, -2));
         const rows = json.table.rows;
 
-        const colors = ["bg-0", "bg-1", "bg-2"];
+       const today = new Date();
+const todayMonth = today.getMonth();
+const todayDay = today.getDate();
+
+const colors = ["bg-0", "bg-1", "bg-2"];
 const colorIndex = todayDay % colors.length;
 document.body.classList.add(colors[colorIndex]);
-
-
-        const today = new Date();
-        const todayMonth = today.getMonth();
-        const todayDay = today.getDate();
 
         let match = rows.find(r => {
           if (!r.c[0]) return false;
@@ -246,14 +245,7 @@ const spotifyUrl = sourceRow?.c[4]?.v;
           metaEl.style.display = "block";
         }
 
-        if (type === "lyric") {
-  contentEl.innerText = content;
-  contentEl.classList.add("lyric");
-  contentEl.style.display = "block";
-          contentEl.classList.remove("lyric");
-        }
-
-          if (spotifyUrl) {
+       if (type === "lyric" && spotifyUrl) {
   const embedUrl = spotifyUrl.includes("/embed/")
     ? spotifyUrl
     : spotifyUrl.replace(
@@ -264,7 +256,6 @@ const spotifyUrl = sourceRow?.c[4]?.v;
   spotifyEl.src = embedUrl;
   spotifyEl.style.display = "block";
 }
-        }
       })
       .catch(err => {
         document.getElementById("content").innerText = "Error loading content.";
