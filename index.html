@@ -161,9 +161,16 @@
           ? previewType
           : (match.c[1]?.v || "").toLowerCase().trim();
 
-        const content = match.c[2]?.v || "";
-        const imageUrl = match.c[3]?.v;
-        const spotifyUrl = match.c[4]?.v;
+        const sourceRow = previewType
+  ? rows.find(r =>
+      (r.c[1]?.v || "").toLowerCase().trim() === previewType
+    )
+  : match;
+
+const content = sourceRow?.c[2]?.v || "";
+const imageUrl = sourceRow?.c[3]?.v;
+const spotifyUrl = sourceRow?.c[4]?.v;
+
 
         // Elements
         const dateEl = document.getElementById("date");
