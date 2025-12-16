@@ -124,6 +124,14 @@ body.bg-2 {
   line-height: 1.9;
   font-style: italic;
 }
+    .divider {
+  width: 40px;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(0,0,0,0.08);
+  margin: 0 auto 2rem;
+}
+
 
   </style>
 </head>
@@ -131,6 +139,8 @@ body.bg-2 {
 <body>
   <main class="card">
     <div id="date" class="date">Your daily dose ✨</div>
+    <div class="divider"></div>
+
 
     <p id="content" class="text-content"></p>
 
@@ -138,7 +148,7 @@ body.bg-2 {
       <img id="image" />
     </div>
 
-    <p id="photo-meta" class="photo-meta">A pictures worth a thousand words</p>
+    <p id="photo-meta" class="photo-meta">A picture's worth a thousand words</p>
 
     <iframe
       id="spotify"
