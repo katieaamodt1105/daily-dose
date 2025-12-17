@@ -75,6 +75,48 @@ iframe {
   margin-top: 1rem;
   border-radius: 14px;
 }
+
+  .christmas-lights {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 1.25rem;
+}
+
+.christmas-lights span {
+  width: 10px;
+  height: 14px;
+  border-radius: 50% 50% 45% 45%;
+  background: #f5c542;
+  animation: twinkle 1.8s infinite ease-in-out;
+}
+
+.christmas-lights span:nth-child(2n) {
+  background: #c0392b;
+  animation-delay: 0.3s;
+}
+
+.christmas-lights span:nth-child(3n) {
+  background: #2ecc71;
+  animation-delay: 0.6s;
+}
+
+.christmas-lights span:nth-child(4n) {
+  background: #3498db;
+  animation-delay: 0.9s;
+}
+
+@keyframes twinkle {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+
 </style>
 </head>
 
@@ -134,44 +176,35 @@ function renderWelcome(app) {
   card.innerHTML = `
   <div class="date">Merry Christmas, Katie 🎄</div>
   <div class="divider"></div>
+<div class="christmas-lights">
+  <span></span><span></span><span></span><span></span><span></span>
+  <span></span><span></span><span></span><span></span><span></span>
+</div>
 
  <div class="poem">
-  <span style="color:#b11226;">’Twas the night of Cribmas</span>
-  <span style="color:#2f6f4e;"> and all through the crib,</span><br>
-  <span style="color:#2f6f4e;">The girlfriends were giggling</span>
-  <span style="color:#b11226;"> till it hurt their ribs.</span><br><br>
+  <div class="poem">
+  ’Twas the night of Cribmas and all through the crib,<br>
+  The girlfriends were giggling till it hurt their ribs.<br><br>
 
-  <span style="color:#b11226;">A gift was exchanged,</span>
-  <span style="color:#2f6f4e;"> a small festive surprise —</span><br>
-  <span style="color:#2f6f4e;">From a Secret Santa</span>
-  <span style="color:#b11226;"> to her girlfriend, KY 🎁</span><br><br>
+  A gift was exchanged, a small festive surprise —<br>
+  From a Secret Santa to her girlfriend, KY 🎁<br><br>
 
-  <span style="color:#2f6f4e;">It’s a mug for your coffee,</span>
-  <span style="color:#b11226;"> but it’s so much more,</span><br>
-  <span style="color:#b11226;">When you scan the code,</span>
-  <span style="color:#2f6f4e;"> you'll see treasures galore.</span><br><br>
+  It’s a mug for your coffee, but it’s so much more,<br>
+  When you scan the code, you'll see treasures galore.<br><br>
 
-  <span style="color:#b11226;">Each morning you sip,</span>
-  <span style="color:#2f6f4e;"> something fresh will appear,</span><br>
-  <span style="color:#2f6f4e;">A new little moment of BWMGFS</span>
-  <span style="color:#b11226;"> will be waiting right here.</span><br><br>
+  Each morning you sip, something fresh will appear,<br>
+  A moment of BWMGFS will be waiting right here.<br><br>
 
-  <span style="color:#2f6f4e;">Some days it’s a quote,</span>
-  <span style="color:#b11226;"> or a photo, or song,</span><br>
-  <span style="color:#b11226;">Some days just a nudge</span>
-  <span style="color:#2f6f4e;"> when the day feels too long.</span><br><br>
+  Some days it’s a quote, or a photo, or song,<br>
+  Some days just a nudge when the day feels too long.<br><br>
 
-  <span style="color:#b11226;">It’s made just for you,</span>
-  <span style="color:#2f6f4e;"> a small moment of cheer,</span><br>
-  <span style="color:#2f6f4e;">A daily reminder:</span>
-  <span style="color:#b11226;"> I’m always right here.</span><br><br>
+  It’s made just for you, a small moment of cheer,<br>
+  A daily reminder: I’m always right here.<br><br>
 
-  <span style="color:#b11226;">So come back tomorrow,</span>
-  <span style="color:#2f6f4e;"> and the next day too,</span><br>
-  <span style="color:#2f6f4e;">Your</span>
-  <strong style="color:#c9a24d;"> Daily Dose of BWMGFS</strong>
-  <span style="color:#b11226;"> ☕️ will be waiting for you ✨</span>
+  So come back tomorrow, and the next day too,<br>
+  Your <strong>Daily Dose of BWMGFS</strong> ☕️ will be waiting for you ✨
 </div>
+
 
   <div class="divider"></div>
 
@@ -201,6 +234,25 @@ function renderWelcome(app) {
 
   // Mark as seen after rendering
   markVisited();
+}
+
+  function getMonthDayFromSheet(cell) {
+  if (!cell) return null;
+
+  // Google Sheets GViz format: Date(YYYY,MM,DD)
+  if (typeof cell === "string" && cell.startsWith("Date")) {
+    const parts = cell.match(/\d+/g).map(Number);
+    return {
+      month: parts[1], // already 0-based
+      day: parts[2]
+    };
+  }
+
+  const d = new Date(cell);
+  return {
+    month: d.getMonth(),
+    day: d.getDate()
+  };
 }
 
   
@@ -289,12 +341,14 @@ const today = getOverrideDate() || new Date();
     const d = today.getDate();
 
     let source =
-      rows.find(r => {
-        const cell = r.c?.[0]?.v;
-        if (!cell) return false;
-        const rd = new Date(cell);
-        return rd.getMonth() === m && rd.getDate() === d;
-      }) || rows[d % rows.length];
+  rows.find(r => {
+    const cell = r.c?.[0]?.v;
+    if (!cell) return false;
+
+    const md = getMonthDayFromSheet(cell);
+    return md && md.month === m && md.day === d;
+  }) || rows[d % rows.length];
+
 
     if (preview) {
       const filtered = rows.filter(r => {
