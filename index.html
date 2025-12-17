@@ -340,7 +340,10 @@ fetch(url)
     if (previewType) {
       const previewRows = rows.filter(r => {
         const cell = r.c?.[1]?.v;
-        return cell && String(cell).toLowerCase().replace(/\s+/g, "").includes(previewType);
+return cell &&
+  String(cell)
+    .toLowerCase()
+    .replace(/\s+/g, "") === previewType;
       });
 
       if (previewRows.length === 0) {
@@ -371,7 +374,8 @@ fetch(url)
     /* =========================
        RESET
     ========================= */
-    contentEl.style.display = "none";
+contentEl.style.display = "none";
+contentEl.classList.remove("lyric");
     imgEl.style.display = "none";
     metaEl.style.display = "none";
     gifEl.style.display = "none";
