@@ -74,7 +74,7 @@ iframe {
 </head>
 
 <body>
-  <div id="app"></div>
+<div id="app"></div>
 
 <script>
 const SHEET_ID = "1E9gjeth0nx2iel6OWRpkDVdxUlqRrZJW8r6-zQky4aw";
@@ -99,32 +99,36 @@ const query = encodeURIComponent("SELECT A,B,C,D,E");
 const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=${SHEET_NAME}&tq=${query}`;
 
 fetch(url)
-  .then(r => r.text())
-  .then(text => {
-    const json = JSON.parse(text.slice(text.indexOf("{"), text.lastIndexOf("}") + 1));
-    const rows = json.table.rows;
+  .then(res => res.text())
+  .then(raw => {
+    const json = JSON.parse(
+      raw.slice(raw.indexOf("{"), raw.lastIndexOf("}") + 1)
+    );
+    const rows = json.table.rows || [];
 
     const app = document.getElementById("app");
     app.innerHTML = "";
 
-    if (!rows || !rows.length) {
-      app.innerText = "No rows found.";
+    if (!rows.length) {
+      app.innerText = "No content found.";
       return;
     }
 
-    console.log("ROWS:", rows.length);
-
-    // PREVIEW ALL
+    /* ===========================
+       PREVIEW ALL
+    =========================== */
     if (preview === "all") {
       app.className = "grid";
 
-      rows.forEach(r => {
-        if (!r.c) return;
+      rows.forEach(row => {
+        if (!row.c) return;
 
-        const type = normalize(r.c[1]?.v ?? r.c[1]?.f);
-const bodyText = r.c[2]?.v || "";
-        const image = r.c[3]?.v;
-        const spotify = r.c[4]?.v;
+        const type = normalize(row.c[1]?.v ?? row.c[1]?.f);
+        const bodyText = row.c[2]?.v || "";
+        const image = row.c[3]?.v;
+        const spotify = row.c[4]?.v;
+
+        if (!type && !bodyText) return;
 
         const card = document.createElement("div");
         card.className = "card";
@@ -132,7 +136,9 @@ const bodyText = r.c[2]?.v || "";
         card.innerHTML = `
           <div class="date">${type || "—"}</div>
           <div class="divider"></div>
-          <div class="text ${type === "lyric" ? "lyric" : ""}">${text}</div>
+          <div class="text ${type === "lyric" ? "lyric" : ""}">
+            ${bodyText}
+          </div>
         `;
 
         if (image) {
@@ -144,10 +150,14 @@ const bodyText = r.c[2]?.v || "";
         if (type === "lyric" && spotify) {
           const iframe = document.createElement("iframe");
           iframe.height = "152";
-          iframe.allow = "autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture";
+          iframe.allow =
+            "autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture";
           iframe.src = spotify.includes("/embed/")
             ? spotify
-            : spotify.replace("https://open.spotify.com/", "https://open.spotify.com/embed/");
+            : spotify.replace(
+                "https://open.spotify.com/",
+                "https://open.spotify.com/embed/"
+              );
           card.appendChild(iframe);
         }
 
@@ -157,26 +167,29 @@ const bodyText = r.c[2]?.v || "";
       return;
     }
 
-    // SINGLE ITEM
+    /* ===========================
+       SINGLE ITEM
+    =========================== */
     const today = new Date();
     const m = today.getMonth();
     const d = today.getDate();
 
-    let match = rows.find(r => {
-      if (!r.c?.[0]?.v) return false;
-      const rd = new Date(r.c[0].v);
-      return rd.getMonth() === m && rd.getDate() === d;
-    }) || rows[d % rows.length];
-
-    let source = match;
+    let source =
+      rows.find(r => {
+        const cell = r.c?.[0]?.v;
+        if (!cell) return false;
+        const rd = new Date(cell);
+        return rd.getMonth() === m && rd.getDate() === d;
+      }) || rows[d % rows.length];
 
     if (preview) {
-      const matches = rows.filter(r => {
-        const raw = r.c?.[1];
-        const val = raw?.v ?? raw?.f;
-return normalize(val).includes(preview);
+      const filtered = rows.filter(r => {
+        const cell = r.c?.[1]?.v ?? r.c?.[1]?.f;
+        return normalize(cell) === preview;
       });
-      if (matches.length) source = matches[Math.floor(Math.random() * matches.length)];
+      if (filtered.length) {
+        source = filtered[Math.floor(Math.random() * filtered.length)];
+      }
     }
 
     if (!source?.c) {
@@ -185,7 +198,7 @@ return normalize(val).includes(preview);
     }
 
     const type = normalize(source.c[1]?.v ?? source.c[1]?.f);
-const bodyText = r.c[2]?.v || "";
+    const bodyText = source.c[2]?.v || "";
     const image = source.c[3]?.v;
     const spotify = source.c[4]?.v;
 
@@ -195,7 +208,9 @@ const bodyText = r.c[2]?.v || "";
     card.innerHTML = `
       <div class="date">${formatDate(today)}</div>
       <div class="divider"></div>
-      <div class="text ${type === "lyric" ? "lyric" : ""}">${text}</div>
+      <div class="text ${type === "lyric" ? "lyric" : ""}">
+        ${bodyText}
+      </div>
     `;
 
     if (image) {
@@ -207,10 +222,14 @@ const bodyText = r.c[2]?.v || "";
     if (type === "lyric" && spotify) {
       const iframe = document.createElement("iframe");
       iframe.height = "152";
-      iframe.allow = "autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture";
+      iframe.allow =
+        "autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture";
       iframe.src = spotify.includes("/embed/")
         ? spotify
-        : spotify.replace("https://open.spotify.com/", "https://open.spotify.com/embed/");
+        : spotify.replace(
+            "https://open.spotify.com/",
+            "https://open.spotify.com/embed/"
+          );
       card.appendChild(iframe);
     }
 
