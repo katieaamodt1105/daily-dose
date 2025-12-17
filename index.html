@@ -136,7 +136,7 @@ function renderWelcome(app) {
   <div class="divider"></div>
 
  <div class="poem">
-  <span style="color:#b11226;">’Twas the night before Cribmas</span>
+  <span style="color:#b11226;">’Twas the night of Cribmas</span>
   <span style="color:#2f6f4e;"> and all through the crib,</span><br>
   <span style="color:#2f6f4e;">The girlfriends were giggling</span>
   <span style="color:#b11226;"> till it hurt their ribs.</span><br><br>
@@ -149,15 +149,15 @@ function renderWelcome(app) {
   <span style="color:#2f6f4e;">It’s a mug for your coffee,</span>
   <span style="color:#b11226;"> but it’s so much more,</span><br>
   <span style="color:#b11226;">When you scan the code,</span>
-  <span style="color:#2f6f4e;"> it delivers encore.</span><br><br>
+  <span style="color:#2f6f4e;"> you'll see treasures galore.</span><br><br>
 
   <span style="color:#b11226;">Each morning you sip,</span>
   <span style="color:#2f6f4e;"> something fresh will appear,</span><br>
-  <span style="color:#2f6f4e;">A new little moment,</span>
-  <span style="color:#b11226;"> just for today, right here.</span><br><br>
+  <span style="color:#2f6f4e;">A new little moment of BWMGFS</span>
+  <span style="color:#b11226;"> will be waiting right here.</span><br><br>
 
   <span style="color:#2f6f4e;">Some days it’s a quote,</span>
-  <span style="color:#b11226;"> some days it’s a song,</span><br>
+  <span style="color:#b11226;"> or a photo, or song,</span><br>
   <span style="color:#b11226;">Some days just a nudge</span>
   <span style="color:#2f6f4e;"> when the day feels too long.</span><br><br>
 
@@ -231,53 +231,55 @@ if (forceWelcome || isFirstVisit()) {
     /* ===========================
        PREVIEW ALL
     =========================== */
-    if (preview === "all") {
-      app.className = "grid";
+    // PREVIEW ALL
+if (preview === "all") {
+  app.className = "grid";
 
-      rows.forEach(row => {
-        if (!row.c) return;
+  rows.forEach(r => {
+    if (!r.c) return;
 
-        const type = normalize(row.c[1]?.v ?? row.c[1]?.f);
-        const bodyText = row.c[2]?.v || "";
-        const image = row.c[3]?.v;
-        const spotify = row.c[4]?.v;
+    const type = normalize(r.c[1]?.v ?? r.c[1]?.f);
+    const bodyText = r.c[2]?.v || "";
+    const image = r.c[3]?.v;
+    const spotify = r.c[4]?.v;
 
-        const card = document.createElement("div");
-        card.className = "card";
+    const card = document.createElement("div");
+    card.className = "card";
 
-        card.innerHTML = `
-          <div class="date">${type || "—"}</div>
-          <div class="divider"></div>
-          <div class="text ${type === "lyric" ? "lyric" : ""}">
-            ${bodyText}
-          </div>
-        `;
+    card.innerHTML = `
+      <div class="date">${type || "—"}</div>
+      <div class="divider"></div>
+      <div class="text ${type === "lyric" ? "lyric" : ""}">
+        ${bodyText}
+      </div>
+    `;
 
-        if (image) {
-          const img = document.createElement("img");
-          img.src = image;
-          card.appendChild(img);
-        }
-
-        if (type === "lyric" && spotify) {
-          const iframe = document.createElement("iframe");
-          iframe.height = "152";
-          iframe.allow =
-            "autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture";
-          iframe.src = spotify.includes("/embed/")
-            ? spotify
-            : spotify.replace(
-                "https://open.spotify.com/",
-                "https://open.spotify.com/embed/"
-              );
-          card.appendChild(iframe);
-        }
-
-        app.appendChild(card);
-      });
-
-      return;
+    if (image) {
+      const img = document.createElement("img");
+      img.src = image;
+      card.appendChild(img);
     }
+
+    if (type === "lyric" && spotify) {
+      const iframe = document.createElement("iframe");
+      iframe.height = "152";
+      iframe.allow =
+        "autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture";
+      iframe.src = spotify.includes("/embed/")
+        ? spotify
+        : spotify.replace(
+            "https://open.spotify.com/",
+            "https://open.spotify.com/embed/"
+          );
+      card.appendChild(iframe);
+    }
+
+    app.appendChild(card);
+  });
+
+  return;
+}
+
 
     /* ===========================
        SINGLE ITEM
