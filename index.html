@@ -74,7 +74,35 @@ iframe {
 </head>
 
 <body>
-<main class="card"> <div id="date" class="date">Your daily dose ☕️</div> <div class="divider"></div> <p id="content" class="text-content"></p> <div class="photo-wrapper"> <img id="image" /> </div> <iframe id="gif" width="100%" height="280" frameborder="0" allowfullscreen style="display:none; border-radius:18px;"> </iframe> <iframe id="spotify" width="100%" height="152" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"> </iframe> </main>
+  <div id="app">
+    <main class="card">
+      <div id="date" class="date">Your daily dose ☕️</div>
+      <div class="divider"></div>
+
+      <p id="content" class="text-content"></p>
+
+      <div class="photo-wrapper">
+        <img id="image" />
+      </div>
+
+      <iframe
+        id="gif"
+        width="100%"
+        height="280"
+        frameborder="0"
+        allowfullscreen
+        style="display:none; border-radius:18px;">
+      </iframe>
+
+      <iframe
+        id="spotify"
+        width="100%"
+        height="152"
+        frameborder="0"
+        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture">
+      </iframe>
+    </main>
+  </div>
 <script>
 const SHEET_ID = "1E9gjeth0nx2iel6OWRpkDVdxUlqRrZJW8r6-zQky4aw";
 const SHEET_NAME = "Daily Dose";
