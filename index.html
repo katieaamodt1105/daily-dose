@@ -300,16 +300,24 @@ fetch(url)
     }) || rows[todayDay % rows.length];
 
     const previewType = getPreviewType();
-    const sourceRow = previewType
-      ? rows.find(r => {
-          const cell = r.c?.[1]?.v;
-          return cell && String(cell).toLowerCase().trim() === previewType;
-        })
-      : match;
+    let sourceRow;
 
-    if (!sourceRow || !sourceRow.c) {
-      throw new Error("No matching row found");
-    }
+if (previewType) {
+  const previewRows = rows.filter(r => {
+    const cell = r.c?.[1]?.v;
+    return cell && String(cell).toLowerCase().trim() === previewType;
+  });
+
+  if (previewRows.length === 0) {
+    throw new Error(`No rows found for preview type: ${previewType}`);
+  }
+
+  // Pick a random matching row so preview always works
+  sourceRow = previewRows[Math.floor(Math.random() * previewRows.length)];
+} else {
+  sourceRow = match;
+}
+
 
     /* =========================
        DATA
