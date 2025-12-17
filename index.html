@@ -116,6 +116,42 @@ iframe {
     transform: scale(1.15);
   }
 }
+@keyframes fall {
+  to {
+    transform: translateY(110vh) rotate(720deg);
+  }
+}
+.christmas-text span {
+  display: inline-block;
+  animation: twinkleText 5s infinite;
+  color: #2f6f4e; /* base green */
+}
+
+/* Stagger each letter */
+.christmas-text span:nth-child(3n) {
+  animation-delay: 0.4s;
+}
+.christmas-text span:nth-child(4n) {
+  animation-delay: 0.8s;
+}
+.christmas-text span:nth-child(5n) {
+  animation-delay: 1.2s;
+}
+
+@keyframes twinkleText {
+  0%, 100% {
+    color: #2f6f4e;
+    text-shadow: none;
+  }
+  30% {
+    color: #b11226; /* red */
+    text-shadow: 0 0 8px rgba(177,18,38,0.4);
+  }
+  60% {
+    color: #c9a24d; /* warm gold */
+    text-shadow: 0 0 10px rgba(201,162,77,0.6);
+  }
+}
 
 </style>
 </head>
@@ -174,7 +210,15 @@ function renderWelcome(app) {
   card.className = "card";
 
   card.innerHTML = `
-  <div class="date">Merry Christmas, Katie 🎄</div>
+  <div class="date christmas-text">
+  <span>M</span><span>e</span><span>r</span><span>r</span><span>y</span>
+  <span>&nbsp;</span>
+  <span>C</span><span>h</span><span>r</span><span>i</span><span>s</span><span>t</span><span>m</span><span>a</span><span>s</span>
+  <span>,</span><span>&nbsp;</span>
+  <span>K</span><span>a</span><span>t</span><span>i</span><span>e</span>
+  <span>&nbsp;</span><span>🎄</span>
+</div>
+
   <div class="divider"></div>
 <div class="christmas-lights">
   <span></span><span></span><span></span><span></span><span></span>
@@ -234,6 +278,25 @@ function renderWelcome(app) {
 
   // Mark as seen after rendering
   markVisited();
+}
+
+  function launchBirthdayConfetti() {
+  for (let i = 0; i < 120; i++) {
+    const confetti = document.createElement("div");
+    confetti.style.position = "fixed";
+    confetti.style.top = "-10px";
+    confetti.style.left = Math.random() * 100 + "vw";
+    confetti.style.width = "8px";
+    confetti.style.height = "12px";
+    confetti.style.background = `hsl(${Math.random() * 360}, 90%, 65%)`;
+    confetti.style.opacity = "0.9";
+    confetti.style.borderRadius = "2px";
+    confetti.style.animation = `fall ${3 + Math.random() * 3}s linear`;
+    confetti.style.zIndex = "9999";
+
+    document.body.appendChild(confetti);
+    setTimeout(() => confetti.remove(), 6000);
+  }
 }
 
   function getMonthDayFromSheet(cell) {
@@ -337,17 +400,18 @@ if (preview === "all") {
        SINGLE ITEM
     =========================== */
 const today = getOverrideDate() || new Date();
-    const m = today.getMonth();
-    const d = today.getDate();
+const todayMonth = today.getMonth() + 1; // JS months are 0-based
+const todayDay = today.getDate();
 
-    let source =
-  rows.find(r => {
-    const cell = r.c?.[0]?.v;
-    if (!cell) return false;
+let source = rows.find(r => {
+  const cell = r.c?.[0]?.v;
+  if (!cell) return false;
 
-    const md = getMonthDayFromSheet(cell);
-    return md && md.month === m && md.day === d;
-  }) || rows[d % rows.length];
+  // cell comes in like "2025-06-21"
+  const [year, month, day] = String(cell).split("-").map(Number);
+  return month === todayMonth && day === todayDay;
+}) || rows[todayDay % rows.length];
+
 
 
     if (preview) {
