@@ -1,121 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Daily Dose</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Daily Dose</title>
 
-  <!-- Fonts -->
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&family=Playfair+Display:ital,wght@0,500;1,500&family=Pacifico&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&family=Pacifico&display=swap" rel="stylesheet">
 
-  <style>
-    body {
+<style>
+body {
   font-family: 'Montserrat', sans-serif;
   background: #f7f5f2;
   margin: 0;
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-body.preview-all {
-  align-items: flex-start;
-  justify-content: flex-start;
-  padding: 2rem 1rem;
+  padding: 1.5rem;
 }
 
 .preview-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 1.5rem;
-  width: 100%;
 }
 
-
-    .card {
-  background: #ffffff;
-  max-width: 520px;
-  width: 100%;
-  padding: 2.75rem; /* slightly more breathing room */
-  margin: 1rem;
-  border-radius: 24px;
+.card {
+  background: #fff;
+  border-radius: 22px;
+  padding: 2rem;
   box-shadow: 0 14px 40px rgba(0,0,0,0.08);
   text-align: center;
-  animation: fadeUp 0.6s ease-out;
 }
 
-    .date {
+.date {
   font-family: 'Pacifico', cursive;
-  font-size: 1.6rem;
-  color: #5f5f5f;
-  margin-bottom: 2.75rem;
-  transform: rotate(-1deg);
+  font-size: 1.3rem;
+  margin-bottom: 1rem;
 }
 
-    .date::after {
-  content: " ✨";
-}
-
-    .text-content {
-      font-size: 1rem;
-      line-height: 1.9;
-      margin-bottom: 1.5rem;
-    }
-
-    .photo-wrapper {
-      position: relative;
-      border-radius: 24px;
-      overflow: hidden;
-      margin-bottom: 0.75rem;
-    }
-
-    .photo-wrapper {
-  border-radius: 18px;
-  overflow: hidden;
-  margin-bottom: 0.75rem;
-}
-
-
-   img {
-  width: 100%;
-  max-height: 65vh; /* fits nicely on mobile screens */
-  object-fit: contain; /* NO cropping */
-  display: none;
-  border-radius: 18px;
-  margin: 0 auto;
-}
-
-    iframe {
-      margin-top: 1rem;
-      border-radius: 14px;
-      display: none;
-    }
-
-    @keyframes fadeUp {
-      from {
-        opacity: 0;
-        transform: translateY(12px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-    
-    .lyric {
-  font-family: 'Montserrat', serif;
-  font-size: 1rem;
-  line-height: 1.9;
-  font-style: italic;
-}
-    .divider {
+.divider {
   width: 40px;
   height: 4px;
+  background: rgba(0,0,0,0.1);
+  margin: 0 auto 1.25rem;
   border-radius: 999px;
-  background: rgba(0,0,0,0.08);
-  margin: 0 auto 2rem;
 }
-.birthday-overlay {
+
+.text {
+  font-size: 1rem;
+  line-height: 1.9;
+}
+
+.lyric {
+  font-style: italic;
+}
+
+img {
+  width: 100%;
+  max-height: 60vh;
+  object-fit: contain;
+  border-radius: 16px;
+  margin-top: 1rem;
+}
+
+iframe {
+  width: 100%;
+  border-radius: 14px;
+  margin-top: 1rem;
+}
+
+.birthday {
   position: fixed;
   inset: 0;
   display: flex;
@@ -125,347 +76,181 @@ body.preview-all {
   z-index: 999;
 }
 
-.birthday-text {
+.birthday span {
   font-family: 'Pacifico', cursive;
   font-size: clamp(3rem, 10vw, 6rem);
   color: #ff6f61;
-  animation: popIn 0.8s ease-out forwards,
-             float 2s ease-in-out infinite;
-  text-align: center;
 }
-
-@keyframes popIn {
-  from {
-    transform: scale(0.6);
-    opacity: 0;
-  }
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-}
-
-.confetti {
-  position: fixed;
-  width: 8px;
-  height: 12px;
-  background: hsl(var(--hue), 90%, 65%);
-  top: -10px;
-  animation: fall linear forwards;
-  z-index: 998;
-}
-
-@keyframes fall {
-  to {
-    transform: translateY(110vh) rotate(720deg);
-  }
-}
-
-
-  </style>
+</style>
 </head>
 
 <body>
-  <main class="card">
-    <div id="date" class="date">Your daily dose ☕️</div>
-    <div class="divider"></div>
 
+<div id="app"></div>
 
-    <p id="content" class="text-content"></p>
-
-    <div class="photo-wrapper">
-      <img id="image" />
-    </div>
-
-<iframe
-  id="gif"
-  width="100%"
-  height="280"
-  frameborder="0"
-  allowfullscreen
-  style="display:none; border-radius:18px;">
-</iframe>
-
-    <iframe
-      id="spotify"
-      width="100%"
-      height="152"
-      frameborder="0"
-      allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture">
-    </iframe>
-  </main>
-
-  <script>
-/* =========================
+<script>
+/* ======================
    CONFIG
-========================= */
+====================== */
 const SHEET_ID = "1E9gjeth0nx2iel6OWRpkDVdxUlqRrZJW8r6-zQky4aw";
 const SHEET_NAME = "Daily Dose";
 
-/* =========================
+/* ======================
    HELPERS
-========================= */
-function getPreviewType() {
-  const params = new URLSearchParams(window.location.search);
-  const preview = params.get("preview");
-  return preview ? preview.toLowerCase().trim() : null;
+====================== */
+const params = new URLSearchParams(window.location.search);
+
+const preview = params.get("preview")?.toLowerCase().trim() || null;
+const overrideDate = params.get("date") ? new Date(params.get("date")) : null;
+
+function normalize(val) {
+  return String(val || "").toLowerCase().trim();
 }
 
-function getOverrideDate() {
-  const params = new URLSearchParams(window.location.search);
-  const dateParam = params.get("date");
-  if (!dateParam) return null;
-  const d = new Date(dateParam);
-  return isNaN(d) ? null : d;
-}
-
-function getBatchDate() {
-  const params = new URLSearchParams(window.location.search);
-  const range = params.get("range");
-  const index = parseInt(params.get("index") || "0", 10);
-
-  if (!range) return null;
-
-  const [start, end] = range.split(",");
-  const startDate = new Date(start);
-  const endDate = new Date(end);
-
-  if (isNaN(startDate) || isNaN(endDate)) return null;
-
-  const dates = [];
-  let d = new Date(startDate);
-
-  while (d <= endDate) {
-    dates.push(new Date(d));
-    d.setDate(d.getDate() + 1);
-  }
-
-  return dates[index] || null;
-}
-
-function formatDate(date) {
-  return date.toLocaleDateString(undefined, {
+function formatDate(d) {
+  return d.toLocaleDateString(undefined, {
     weekday: "long",
     month: "long",
     day: "numeric"
   });
 }
 
-function launchBirthday() {
-  const overlay = document.createElement("div");
-  overlay.className = "birthday-overlay";
-
-  const text = document.createElement("div");
-  text.className = "birthday-text";
-  text.innerText = "HAPPY BIRTHDAY! 🎉";
-
-  overlay.appendChild(text);
-  document.body.appendChild(overlay);
-
-  for (let i = 0; i < 120; i++) {
-    const piece = document.createElement("div");
-    piece.className = "confetti";
-    piece.style.left = Math.random() * 100 + "vw";
-    piece.style.animationDuration = 3 + Math.random() * 3 + "s";
-    piece.style.setProperty("--hue", Math.random() * 360);
-    document.body.appendChild(piece);
-    setTimeout(() => piece.remove(), 6000);
-  }
-}
-
-/* =========================
+/* ======================
    FETCH SHEET
-========================= */
+====================== */
 const query = encodeURIComponent("SELECT A,B,C,D,E");
 const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=${SHEET_NAME}&tq=${query}`;
 
 fetch(url)
   .then(res => res.text())
   .then(text => {
-    const jsonText = text.substring(
-      text.indexOf("{"),
-      text.lastIndexOf("}") + 1
-    );
-    const json = JSON.parse(jsonText);
+    const json = JSON.parse(text.substring(text.indexOf("{"), text.lastIndexOf("}") + 1));
     const rows = json.table.rows;
+    if (!rows || !rows.length) throw new Error("No data");
 
-    if (!rows || rows.length === 0) {
-      throw new Error("No rows returned from sheet");
+    const app = document.getElementById("app");
+
+    /* ======================
+       PREVIEW ALL
+    ====================== */
+    if (preview === "all") {
+      app.className = "preview-grid";
+
+      rows.forEach(r => {
+        if (!r.c) return;
+
+        const date = r.c[0]?.v ? formatDate(new Date(r.c[0].v)) : "—";
+        const type = normalize(r.c[1]?.v ?? r.c[1]?.f);
+        const text = r.c[2]?.v || "";
+        const image = r.c[3]?.v;
+        const spotify = r.c[4]?.v;
+
+        const card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML = `
+          <div class="date">${type || "no type"}</div>
+          <div class="divider"></div>
+          <div class="text ${type === "lyric" ? "lyric" : ""}">${text}</div>
+        `;
+
+        if (image) {
+          const img = document.createElement("img");
+          img.src = image;
+          card.appendChild(img);
+        }
+
+        if (type === "lyric" && spotify) {
+          const iframe = document.createElement("iframe");
+          iframe.height = "152";
+          iframe.allow = "autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture";
+          iframe.src = spotify.includes("/embed/")
+            ? spotify
+            : spotify.replace("https://open.spotify.com/", "https://open.spotify.com/embed/");
+          card.appendChild(iframe);
+        }
+
+        app.appendChild(card);
+      });
+
+      return;
     }
 
-    /* =========================
-       ELEMENTS
-    ========================= */
-    const dateEl = document.getElementById("date");
-    const contentEl = document.getElementById("content");
-    const imgEl = document.getElementById("image");
-    const metaEl = document.getElementById("photo-meta");
-    const gifEl = document.getElementById("gif");
-    const spotifyEl = document.getElementById("spotify");
+    /* ======================
+       SINGLE ITEM MODE
+    ====================== */
+    const today = overrideDate || new Date();
+    const m = today.getMonth();
+    const d = today.getDate();
 
-    /* =========================
-       DATE SELECTION
-    ========================= */
-    const today =
-      getBatchDate() ||
-      getOverrideDate() ||
-      new Date();
+    let daily = rows.find(r => {
+      if (!r.c?.[0]?.v) return false;
+      const rd = new Date(r.c[0].v);
+      return rd.getMonth() === m && rd.getDate() === d;
+    }) || rows[d % rows.length];
 
-    const todayMonth = today.getMonth();
-    const todayDay = today.getDate();
+    let source = daily;
 
-    dateEl.innerText = formatDate(today);
-
-    if (todayMonth === 5 && todayDay === 21) {
-      launchBirthday();
+    if (preview) {
+      const matches = rows.filter(r => {
+        const raw = r.c?.[1];
+        const val = raw?.v ?? raw?.f;
+        return normalize(val) === preview;
+      });
+      if (matches.length) {
+        source = matches[Math.floor(Math.random() * matches.length)];
+      }
     }
 
-    /* =========================
-       MATCH ROW
-    ========================= */
-    let match = rows.find(r => {
-      if (!r.c || !r.c[0]?.v) return false;
-      const d = new Date(r.c[0].v);
-      return d.getMonth() === todayMonth && d.getDate() === todayDay;
-    }) || rows[todayDay % rows.length];
+    if (!source?.c) throw new Error("No row selected");
 
-   const previewType = getPreviewType();
-
-/* =========================
-   PREVIEW ALL MODE
-========================= */
-if (previewType === "all") {
-  document.body.classList.add("preview-all");
-
-  const container = document.createElement("div");
-  container.className = "preview-grid";
-
-  rows.forEach((r, index) => {
-    if (!r.c) return;
-
-    const type = String(r.c[1]?.v || "")
-      .toLowerCase()
-      .trim()
-      .replace(/\s+/g, "");
-
-    const content = r.c[2]?.v || "(no text)";
-    const imageUrl = r.c[3]?.v;
-    const spotifyUrl = r.c[4]?.v;
+    const type = normalize(source.c[1]?.v ?? source.c[1]?.f);
+    const text = source.c[2]?.v || "";
+    const image = source.c[3]?.v;
+    const spotify = source.c[4]?.v;
 
     const card = document.createElement("div");
     card.className = "card";
 
     card.innerHTML = `
-      <div class="date">${type || "no type"}</div>
+      <div class="date">${formatDate(today)}</div>
       <div class="divider"></div>
-      <p class="text-content ${type === "lyric" ? "lyric" : ""}">
-        ${content}
-      </p>
+      <div class="text ${type === "lyric" ? "lyric" : ""}">${text}</div>
     `;
 
-    // Image / GIF
-    if (imageUrl) {
-      if (imageUrl.includes("tenor.com/embed")) {
-        const iframe = document.createElement("iframe");
-        iframe.src = imageUrl;
-        iframe.width = "100%";
-        iframe.height = "280";
-        iframe.style.borderRadius = "18px";
-        iframe.allowFullscreen = true;
-        card.appendChild(iframe);
-      } else {
-        const img = document.createElement("img");
-        img.src = imageUrl;
-        img.style.display = "block";
-        card.appendChild(img);
-      }
+    if (image) {
+      const img = document.createElement("img");
+      img.src = image;
+      card.appendChild(img);
     }
 
-    // Spotify
-    if (type === "lyric" && spotifyUrl) {
+    if (type === "lyric" && spotify) {
       const iframe = document.createElement("iframe");
-      iframe.src = spotifyUrl.includes("/embed/")
-        ? spotifyUrl
-        : spotifyUrl.replace(
-            "https://open.spotify.com/",
-            "https://open.spotify.com/embed/"
-          );
-      iframe.width = "100%";
       iframe.height = "152";
-      iframe.allow =
-        "autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture";
+      iframe.allow = "autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture";
+      iframe.src = spotify.includes("/embed/")
+        ? spotify
+        : spotify.replace("https://open.spotify.com/", "https://open.spotify.com/embed/");
       card.appendChild(iframe);
     }
 
-    container.appendChild(card);
-  });
+    app.appendChild(card);
 
-  document.body.innerHTML = "";
-  document.body.appendChild(container);
-  return; // IMPORTANT: stop normal execution
-}
-
-
-    /* =========================
-       RESET
-    ========================= */
-contentEl.style.display = "none";
-contentEl.classList.remove("lyric");
-    imgEl.style.display = "none";
-    metaEl.style.display = "none";
-    gifEl.style.display = "none";
-    spotifyEl.style.display = "none";
-
-    /* =========================
-       TEXT
-    ========================= */
-    const textTypes = ["affirmation", "quote", "fortune", "funny"];
-    if (textTypes.includes(type)) {
-      contentEl.innerText = content;
-      contentEl.style.display = "block";
+    /* ======================
+       BIRTHDAY
+    ====================== */
+    if (today.getMonth() === 5 && today.getDate() === 21) {
+      const b = document.createElement("div");
+      b.className = "birthday";
+      b.innerHTML = "<span>HAPPY BIRTHDAY! 🎉</span>";
+      document.body.appendChild(b);
     }
 
-    /* =========================
-       IMAGE / GIF
-    ========================= */
-    if (imageUrl) {
-      if (imageUrl.includes("tenor.com/embed")) {
-        gifEl.src = imageUrl;
-        gifEl.style.display = "block";
-      } else {
-        imgEl.src = imageUrl;
-        imgEl.style.display = "block";
-        metaEl.style.display = "block";
-      }
-    }
-
-   if (type === "lyric") {
-  contentEl.innerText = content;
-  contentEl.classList.add("lyric");
-  contentEl.style.display = "block";
-
-  if (spotifyUrl) {
-    spotifyEl.src = spotifyUrl.includes("/embed/")
-      ? spotifyUrl
-      : spotifyUrl.replace(
-          "https://open.spotify.com/",
-          "https://open.spotify.com/embed/"
-        );
-    spotifyEl.style.display = "block";
-  }
-}
   })
   .catch(err => {
-    document.getElementById("content").innerText = "Error loading content.";
+    document.getElementById("app").innerText = "Error loading content.";
     console.error(err);
   });
 </script>
-
 
 </body>
 </html>
