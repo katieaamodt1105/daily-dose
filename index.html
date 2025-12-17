@@ -216,6 +216,38 @@ function getPreviewType() {
   return preview ? preview.toLowerCase().trim() : null;
 }
 
+function getOverrideDate() {
+  const params = new URLSearchParams(window.location.search);
+  const dateParam = params.get("date");
+  if (!dateParam) return null;
+  const d = new Date(dateParam);
+  return isNaN(d) ? null : d;
+}
+
+function getBatchDate() {
+  const params = new URLSearchParams(window.location.search);
+  const range = params.get("range");
+  const index = parseInt(params.get("index") || "0", 10);
+
+  if (!range) return null;
+
+  const [start, end] = range.split(",");
+  const startDate = new Date(start);
+  const endDate = new Date(end);
+
+  if (isNaN(startDate) || isNaN(endDate)) return null;
+
+  const dates = [];
+  let d = new Date(startDate);
+
+  while (d <= endDate) {
+    dates.push(new Date(d));
+    d.setDate(d.getDate() + 1);
+  }
+
+  return dates[index] || null;
+}
+
 function formatDate(date) {
   return date.toLocaleDateString(undefined, {
     weekday: "long",
@@ -242,7 +274,6 @@ function launchBirthday() {
     piece.style.animationDuration = 3 + Math.random() * 3 + "s";
     piece.style.setProperty("--hue", Math.random() * 360);
     document.body.appendChild(piece);
-
     setTimeout(() => piece.remove(), 6000);
   }
 }
@@ -278,9 +309,13 @@ fetch(url)
     const spotifyEl = document.getElementById("spotify");
 
     /* =========================
-       DATE + BIRTHDAY
+       DATE SELECTION
     ========================= */
-    const today = new Date();
+    const today =
+      getBatchDate() ||
+      getOverrideDate() ||
+      new Date();
+
     const todayMonth = today.getMonth();
     const todayDay = today.getDate();
 
@@ -291,10 +326,10 @@ fetch(url)
     }
 
     /* =========================
-       ROW MATCHING
+       MATCH ROW
     ========================= */
     let match = rows.find(r => {
-      if (!r.c || !r.c[0] || !r.c[0].v) return false;
+      if (!r.c || !r.c[0]?.v) return false;
       const d = new Date(r.c[0].v);
       return d.getMonth() === todayMonth && d.getDate() === todayDay;
     }) || rows[todayDay % rows.length];
@@ -302,22 +337,24 @@ fetch(url)
     const previewType = getPreviewType();
     let sourceRow;
 
-if (previewType) {
-  const previewRows = rows.filter(r => {
-    const cell = r.c?.[1]?.v;
-    return cell && String(cell).toLowerCase().trim() === previewType;
-  });
+    if (previewType) {
+      const previewRows = rows.filter(r => {
+        const cell = r.c?.[1]?.v;
+        return cell && String(cell).toLowerCase().trim() === previewType;
+      });
 
-  if (previewRows.length === 0) {
-    throw new Error(`No rows found for preview type: ${previewType}`);
-  }
+      if (previewRows.length === 0) {
+        throw new Error(`No rows found for preview type: ${previewType}`);
+      }
 
-  // Pick a random matching row so preview always works
-  sourceRow = previewRows[Math.floor(Math.random() * previewRows.length)];
-} else {
-  sourceRow = match;
-}
+      sourceRow = previewRows[Math.floor(Math.random() * previewRows.length)];
+    } else {
+      sourceRow = match;
+    }
 
+    if (!sourceRow || !sourceRow.c) {
+      throw new Error("No matching row found");
+    }
 
     /* =========================
        DATA
@@ -328,7 +365,7 @@ if (previewType) {
     const spotifyUrl = sourceRow.c[4]?.v;
 
     /* =========================
-       RESET VISIBILITY
+       RESET
     ========================= */
     contentEl.style.display = "none";
     imgEl.style.display = "none";
@@ -337,7 +374,7 @@ if (previewType) {
     spotifyEl.style.display = "none";
 
     /* =========================
-       TEXT CONTENT
+       TEXT
     ========================= */
     const textTypes = ["affirmation", "quote", "fortune", "funny"];
     if (textTypes.includes(type)) {
@@ -346,7 +383,7 @@ if (previewType) {
     }
 
     /* =========================
-       IMAGES / GIFS
+       IMAGE / GIF
     ========================= */
     if (imageUrl) {
       if (imageUrl.includes("tenor.com/embed")) {
@@ -382,6 +419,7 @@ if (previewType) {
     console.error(err);
   });
 </script>
+
 
 </body>
 </html>
