@@ -122,7 +122,7 @@ fetch(url)
         if (!r.c) return;
 
         const type = normalize(r.c[1]?.v ?? r.c[1]?.f);
-        const text = r.c[2]?.v || "";
+const bodyText = r.c[2]?.v || "";
         const image = r.c[3]?.v;
         const spotify = r.c[4]?.v;
 
