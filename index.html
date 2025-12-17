@@ -340,7 +340,7 @@ fetch(url)
     if (previewType) {
       const previewRows = rows.filter(r => {
         const cell = r.c?.[1]?.v;
-        return cell && String(cell).toLowerCase().trim() === previewType;
+        return cell && String(cell).toLowerCase().replace(/\s+/g, "").includes(previewType);
       });
 
       if (previewRows.length === 0) {
@@ -359,7 +359,11 @@ fetch(url)
     /* =========================
        DATA
     ========================= */
-    const type = (sourceRow.c[1]?.v || "").toLowerCase().trim();
+    const type = String(sourceRow.c[1]?.v || "")
+  .toLowerCase()
+  .trim()
+  .replace(/\s+/g, "");
+
     const content = sourceRow.c[2]?.v || "";
     const imageUrl = sourceRow.c[3]?.v;
     const spotifyUrl = sourceRow.c[4]?.v;
@@ -396,23 +400,21 @@ fetch(url)
       }
     }
 
-    /* =========================
-       SPOTIFY
-    ========================= */
-    if (type === "lyric" && spotifyUrl) {
-      contentEl.innerText = content;
-      contentEl.classList.add("lyric");
-      contentEl.style.display = "block";
+   if (type === "lyric") {
+  contentEl.innerText = content;
+  contentEl.classList.add("lyric");
+  contentEl.style.display = "block";
 
-      spotifyEl.src = spotifyUrl.includes("/embed/")
-        ? spotifyUrl
-        : spotifyUrl.replace(
-            "https://open.spotify.com/",
-            "https://open.spotify.com/embed/"
-          );
-
-      spotifyEl.style.display = "block";
-    }
+  if (spotifyUrl) {
+    spotifyEl.src = spotifyUrl.includes("/embed/")
+      ? spotifyUrl
+      : spotifyUrl.replace(
+          "https://open.spotify.com/",
+          "https://open.spotify.com/embed/"
+        );
+    spotifyEl.style.display = "block";
+  }
+}
   })
   .catch(err => {
     document.getElementById("content").innerText = "Error loading content.";
