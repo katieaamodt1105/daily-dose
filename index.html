@@ -18,6 +18,18 @@
   align-items: center;
   justify-content: center;
 }
+body.preview-all {
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 2rem 1rem;
+}
+
+.preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+  width: 100%;
+}
 
 
     .card {
@@ -322,42 +334,82 @@ fetch(url)
       return d.getMonth() === todayMonth && d.getDate() === todayDay;
     }) || rows[todayDay % rows.length];
 
-    const previewType = getPreviewType();
-    let sourceRow;
+   const previewType = getPreviewType();
 
-    if (previewType) {
-      const previewRows = rows.filter(r => {
-        const cell = r.c?.[1]?.v;
-return cell &&
-  String(cell)
-    .toLowerCase()
-    .replace(/\s+/g, "") === previewType;
-      });
+/* =========================
+   PREVIEW ALL MODE
+========================= */
+if (previewType === "all") {
+  document.body.classList.add("preview-all");
 
-      if (previewRows.length === 0) {
-        throw new Error(`No rows found for preview type: ${previewType}`);
+  const container = document.createElement("div");
+  container.className = "preview-grid";
+
+  rows.forEach((r, index) => {
+    if (!r.c) return;
+
+    const type = String(r.c[1]?.v || "")
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, "");
+
+    const content = r.c[2]?.v || "(no text)";
+    const imageUrl = r.c[3]?.v;
+    const spotifyUrl = r.c[4]?.v;
+
+    const card = document.createElement("div");
+    card.className = "card";
+
+    card.innerHTML = `
+      <div class="date">${type || "no type"}</div>
+      <div class="divider"></div>
+      <p class="text-content ${type === "lyric" ? "lyric" : ""}">
+        ${content}
+      </p>
+    `;
+
+    // Image / GIF
+    if (imageUrl) {
+      if (imageUrl.includes("tenor.com/embed")) {
+        const iframe = document.createElement("iframe");
+        iframe.src = imageUrl;
+        iframe.width = "100%";
+        iframe.height = "280";
+        iframe.style.borderRadius = "18px";
+        iframe.allowFullscreen = true;
+        card.appendChild(iframe);
+      } else {
+        const img = document.createElement("img");
+        img.src = imageUrl;
+        img.style.display = "block";
+        card.appendChild(img);
       }
-
-      sourceRow = previewRows[Math.floor(Math.random() * previewRows.length)];
-    } else {
-      sourceRow = match;
     }
 
-    if (!sourceRow || !sourceRow.c) {
-      throw new Error("No matching row found");
+    // Spotify
+    if (type === "lyric" && spotifyUrl) {
+      const iframe = document.createElement("iframe");
+      iframe.src = spotifyUrl.includes("/embed/")
+        ? spotifyUrl
+        : spotifyUrl.replace(
+            "https://open.spotify.com/",
+            "https://open.spotify.com/embed/"
+          );
+      iframe.width = "100%";
+      iframe.height = "152";
+      iframe.allow =
+        "autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture";
+      card.appendChild(iframe);
     }
 
-    /* =========================
-       DATA
-    ========================= */
-    const type = String(sourceRow.c[1]?.v || "")
-  .toLowerCase()
-  .trim()
-  .replace(/\s+/g, "");
+    container.appendChild(card);
+  });
 
-    const content = sourceRow.c[2]?.v || "";
-    const imageUrl = sourceRow.c[3]?.v;
-    const spotifyUrl = sourceRow.c[4]?.v;
+  document.body.innerHTML = "";
+  document.body.appendChild(container);
+  return; // IMPORTANT: stop normal execution
+}
+
 
     /* =========================
        RESET
