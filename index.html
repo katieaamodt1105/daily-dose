@@ -29,7 +29,7 @@ body {
 .card {
   background: #fff;
   border-radius: 20px;
-  padding: 2rem;
+  padding: 2.5rem;
   box-shadow: 0 14px 40px rgba(0,0,0,0.08);
   text-align: center;
 }
@@ -123,35 +123,36 @@ iframe {
 }
 .christmas-text span {
   display: inline-block;
-  animation: twinkleText 5s infinite;
-  color: #2f6f4e; /* base green */
+  animation: neonGlow 4s infinite ease-in-out;
+  color: #fff;
+  text-shadow:
+    0 0 6px rgba(255,255,255,0.6),
+    0 0 12px rgba(255,0,80,0.6),
+    0 0 24px rgba(255,0,80,0.4);
 }
 
-/* Stagger each letter */
-.christmas-text span:nth-child(3n) {
-  animation-delay: 0.4s;
-}
-.christmas-text span:nth-child(4n) {
-  animation-delay: 0.8s;
-}
-.christmas-text span:nth-child(5n) {
-  animation-delay: 1.2s;
-}
+/* stagger letters */
+.christmas-text span:nth-child(3n) { animation-delay: 0.6s; }
+.christmas-text span:nth-child(4n) { animation-delay: 1.2s; }
+.christmas-text span:nth-child(5n) { animation-delay: 1.8s; }
 
-@keyframes twinkleText {
+@keyframes neonGlow {
   0%, 100% {
-    color: #2f6f4e;
-    text-shadow: none;
+    text-shadow:
+      0 0 6px rgba(255,255,255,0.4),
+      0 0 12px rgba(255,0,80,0.4),
+      0 0 20px rgba(255,0,80,0.2);
+    opacity: 0.9;
   }
-  30% {
-    color: #b11226; /* red */
-    text-shadow: 0 0 8px rgba(177,18,38,0.4);
-  }
-  60% {
-    color: #c9a24d; /* warm gold */
-    text-shadow: 0 0 10px rgba(201,162,77,0.6);
+  50% {
+    text-shadow:
+      0 0 10px rgba(255,255,255,0.9),
+      0 0 20px rgba(255,60,120,0.9),
+      0 0 40px rgba(255,60,120,0.7);
+    opacity: 1;
   }
 }
+
 
 </style>
 </head>
@@ -396,21 +397,36 @@ if (preview === "all") {
 }
 
 
-    /* ===========================
-       SINGLE ITEM
-    =========================== */
+   /* ===========================
+   SINGLE ITEM (MONTH + DAY ONLY)
+=========================== */
 const today = getOverrideDate() || new Date();
-const todayMonth = today.getMonth() + 1; // JS months are 0-based
+const todayMonth = today.getMonth();
 const todayDay = today.getDate();
+
+    // 🎉 Birthday confetti (June 21)
+if (todayMonth === 5 && todayDay === 21) {
+  launchBirthdayConfetti();
+}
+
 
 let source = rows.find(r => {
   const cell = r.c?.[0]?.v;
   if (!cell) return false;
 
-  // cell comes in like "2025-06-21"
-  const [year, month, day] = String(cell).split("-").map(Number);
-  return month === todayMonth && day === todayDay;
+  let d;
+
+  // Handle Google Sheets Date(...) format
+  if (typeof cell === "string" && cell.startsWith("Date")) {
+    const parts = cell.match(/\d+/g).map(Number);
+    d = new Date(parts[0], parts[1], parts[2]);
+  } else {
+    d = new Date(cell);
+  }
+
+  return d.getMonth() === todayMonth && d.getDate() === todayDay;
 }) || rows[todayDay % rows.length];
+
 
 
 
