@@ -88,6 +88,15 @@ function normalize(v) {
   return String(v || "").toLowerCase().trim();
 }
 
+  function getOverrideDate() {
+  const params = new URLSearchParams(window.location.search);
+  const dateParam = params.get("date");
+  if (!dateParam) return null;
+
+  const d = new Date(dateParam);
+  return isNaN(d) ? null : d;
+}
+
 function formatDate(d) {
   return d.toLocaleDateString(undefined, {
     weekday: "long",
@@ -118,17 +127,55 @@ function renderWelcome(app) {
   card.className = "card";
 
   card.innerHTML = `
-    <div class="date">Hi 💛</div>
-    <div class="divider"></div>
-    <div class="text">
-      This is your <strong>Daily Dose</strong> ☕️<br><br>
-      Every day when you scan this mug, you’ll get
-      a little something made just for you —<br>
-      a quote, a laugh, a song, or a reminder you didn’t know you needed.
-      <br><br>
-      Come back anytime. It changes daily ✨
-    </div>
-  `;
+  <div class="date">Merry Christmas, Katie 🎄</div>
+  <div class="divider"></div>
+
+  <div class="text">
+    ’Twas the night of Cribmas and all through the crib,<br>
+    The girlfriends were giggling til it hurt their ribs.<br><br>
+
+    A gift was exchanged, a small festive surprise —<br>
+  From a Secret Santa to her girlfriend, KY 🎁<br><br>
+
+      It’s a mug for your coffee, but it’s so much more,<br>
+  When you scan the code, it delivers the lore.<br><br>
+    
+   Each morning you sip, something fresh will appear,<br>
+A new little moment of BWMGFS right here.<br><br>
+   
+   Some days it’s a quote, some days it’s a song,<br>
+    Some days just a nudge when the day feels too long.<br><br>
+
+    It’s made just for you, a small moment of cheer,<br>
+    A daily reminder: I’m always right here.<br><br>
+
+    So come back tomorrow, and the next day too,<br>
+    Your <strong>Daily Dose of BWMGFS</strong> ☕️ will be waiting for you ✨
+  </div>
+
+  <div class="divider"></div>
+
+<div class="date">Example: December 25 🎄</div>
+
+<div class="divider"></div>
+
+<img
+  src="https://media1.tenor.com/m/DvO-ao8Rsh8AAAAd/the-office-presents.gif"
+  alt="Christmas presents moment"
+  style="margin-bottom:1rem;"
+/>
+
+<div class="text lyric">
+  “Christmas isn’t a season. It’s a feeling.”<br>
+  — Edna Ferber
+</div>
+
+<div class="text" style="font-size:0.85rem; opacity:0.7;">
+  Come back tomorrow for something new ✨
+</div>
+
+
+`;
 
   app.appendChild(card);
 
@@ -215,7 +262,7 @@ if (forceWelcome || isFirstVisit()) {
     /* ===========================
        SINGLE ITEM
     =========================== */
-    const today = new Date();
+const today = getOverrideDate() || new Date();
     const m = today.getMonth();
     const d = today.getDate();
 
