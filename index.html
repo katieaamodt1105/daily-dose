@@ -201,146 +201,30 @@
   </main>
 
   <script>
-    const SHEET_ID = "1E9gjeth0nx2iel6OWRpkDVdxUlqRrZJW8r6-zQky4aw";
-    const SHEET_NAME = "Daily Dose";
+/* =========================
+   CONFIG
+========================= */
+const SHEET_ID = "1E9gjeth0nx2iel6OWRpkDVdxUlqRrZJW8r6-zQky4aw";
+const SHEET_NAME = "Daily Dose";
 
-    function getPreviewType() {
-      const params = new URLSearchParams(window.location.search);
-      const preview = params.get("preview");
-      return preview ? preview.toLowerCase().trim() : null;
-    }
-
-    function formatDate(date) {
-      return date.toLocaleDateString(undefined, {
-        weekday: "long",
-        month: "long",
-        day: "numeric"
-      });
-    }
-
-    const query = encodeURIComponent("SELECT A,B,C,D,E");
-    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=${SHEET_NAME}&tq=${query}`;
-
-    fetch(url)
-      .then(res => res.text())
-      .then(text => {
-const jsonText = text.substring(
-  text.indexOf("{"),
-  text.lastIndexOf("}") + 1
-);
-const json = JSON.parse(jsonText);
-        const rows = json.table.rows;
-        if (!rows || rows.length === 0) {
-  throw new Error("No rows returned from sheet");
+/* =========================
+   HELPERS
+========================= */
+function getPreviewType() {
+  const params = new URLSearchParams(window.location.search);
+  const preview = params.get("preview");
+  return preview ? preview.toLowerCase().trim() : null;
 }
 
-       const today = new Date();
-const todayMonth = today.getMonth();
-const todayDay = today.getDate();
-
-const isBirthday =
-  today.getMonth() === 5 && today.getDate() === 21; // June = 5
-
-if (isBirthday) {
-  launchBirthday();
+function formatDate(date) {
+  return date.toLocaleDateString(undefined, {
+    weekday: "long",
+    month: "long",
+    day: "numeric"
+  });
 }
 
-        let match = rows.find(r => {
-          if (!r.c[0]) return false;
-          const d = new Date(r.c[0].v);
-          return d.getMonth() === todayMonth && d.getDate() === todayDay;
-        }) || rows[todayDay % rows.length];
-
-        const previewType = getPreviewType();
-        const type = previewType
-          ? previewType
-          : (match.c[1]?.v || "").toLowerCase().trim();
-
-        const sourceRow = previewType
-  ? rows.find(r => {
-      const cell = r.c[1];
-      if (!cell || !cell.v) return false;
-      return String(cell.v).toLowerCase().trim() === previewType;
-    })
-  : match;
-
-
-const content = sourceRow?.c[2]?.v || "";
-const imageUrl = sourceRow?.c[3]?.v;
-
-const gifEl = document.getElementById("gif");
-
-// Reset
-imgEl.style.display = "none";
-gifEl.style.display = "none";
-
-// If it's a Tenor/GIF embed → iframe
-if (imageUrl && imageUrl.includes("tenor.com/embed")) {
-  gifEl.src = imageUrl;
-  gifEl.style.display = "block";
-}
-
-// Otherwise treat it like a normal image
-else if (imageUrl) {
-  imgEl.src = imageUrl;
-  imgEl.style.display = "block";
-  metaEl.style.display = "block";
-}
-const spotifyUrl = sourceRow?.c[4]?.v;
-
-
-        // Elements
-        const dateEl = document.getElementById("date");
-        const contentEl = document.getElementById("content");
-        const imgEl = document.getElementById("image");
-        const metaEl = document.getElementById("photo-meta");
-        const spotifyEl = document.getElementById("spotify");
-
-        // Reset
-        contentEl.style.display = "none";
-        imgEl.style.display = "none";
-        metaEl.style.display = "none";
-        spotifyEl.style.display = "none";
-
-        const textTypes = ["affirmation", "quote", "fortune", "funny"];
-
-        if (textTypes.includes(type)) {
-          contentEl.innerText = content;
-          contentEl.style.display = "block";
-        }
-
-        if (type === "photo" && imageUrl) {
-          imgEl.src = imageUrl;
-          imgEl.style.display = "block";
-          metaEl.style.display = "block";
-        }
-
-      if (type === "lyric") {
-  contentEl.innerText = content;
-  contentEl.classList.add("lyric");
-  contentEl.style.display = "block";
-
-  if (spotifyUrl) {
-    const embedUrl = spotifyUrl.includes("/embed/")
-      ? spotifyUrl
-      : spotifyUrl.replace(
-          "https://open.spotify.com/",
-          "https://open.spotify.com/embed/"
-        );
-
-    spotifyEl.src = embedUrl;
-    spotifyEl.style.display = "block";
-  }
-}
-
-      })
-      .catch(err => {
-        document.getElementById("content").innerText = "Error loading content.";
-        console.error(err);
-      });
-
-    function launchBirthday() {
-  // Text
+function launchBirthday() {
   const overlay = document.createElement("div");
   overlay.className = "birthday-overlay";
 
@@ -351,7 +235,6 @@ const spotifyUrl = sourceRow?.c[4]?.v;
   overlay.appendChild(text);
   document.body.appendChild(overlay);
 
-  // Confetti
   for (let i = 0; i < 120; i++) {
     const piece = document.createElement("div");
     piece.className = "confetti";
@@ -364,6 +247,133 @@ const spotifyUrl = sourceRow?.c[4]?.v;
   }
 }
 
-  </script>
+/* =========================
+   FETCH SHEET
+========================= */
+const query = encodeURIComponent("SELECT A,B,C,D,E");
+const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=${SHEET_NAME}&tq=${query}`;
+
+fetch(url)
+  .then(res => res.text())
+  .then(text => {
+    const jsonText = text.substring(
+      text.indexOf("{"),
+      text.lastIndexOf("}") + 1
+    );
+    const json = JSON.parse(jsonText);
+    const rows = json.table.rows;
+
+    if (!rows || rows.length === 0) {
+      throw new Error("No rows returned from sheet");
+    }
+
+    /* =========================
+       ELEMENTS
+    ========================= */
+    const dateEl = document.getElementById("date");
+    const contentEl = document.getElementById("content");
+    const imgEl = document.getElementById("image");
+    const metaEl = document.getElementById("photo-meta");
+    const gifEl = document.getElementById("gif");
+    const spotifyEl = document.getElementById("spotify");
+
+    /* =========================
+       DATE + BIRTHDAY
+    ========================= */
+    const today = new Date();
+    const todayMonth = today.getMonth();
+    const todayDay = today.getDate();
+
+    dateEl.innerText = formatDate(today);
+
+    if (todayMonth === 5 && todayDay === 21) {
+      launchBirthday();
+    }
+
+    /* =========================
+       ROW MATCHING
+    ========================= */
+    let match = rows.find(r => {
+      if (!r.c || !r.c[0] || !r.c[0].v) return false;
+      const d = new Date(r.c[0].v);
+      return d.getMonth() === todayMonth && d.getDate() === todayDay;
+    }) || rows[todayDay % rows.length];
+
+    const previewType = getPreviewType();
+    const sourceRow = previewType
+      ? rows.find(r => {
+          const cell = r.c?.[1]?.v;
+          return cell && String(cell).toLowerCase().trim() === previewType;
+        })
+      : match;
+
+    if (!sourceRow || !sourceRow.c) {
+      throw new Error("No matching row found");
+    }
+
+    /* =========================
+       DATA
+    ========================= */
+    const type = (sourceRow.c[1]?.v || "").toLowerCase().trim();
+    const content = sourceRow.c[2]?.v || "";
+    const imageUrl = sourceRow.c[3]?.v;
+    const spotifyUrl = sourceRow.c[4]?.v;
+
+    /* =========================
+       RESET VISIBILITY
+    ========================= */
+    contentEl.style.display = "none";
+    imgEl.style.display = "none";
+    metaEl.style.display = "none";
+    gifEl.style.display = "none";
+    spotifyEl.style.display = "none";
+
+    /* =========================
+       TEXT CONTENT
+    ========================= */
+    const textTypes = ["affirmation", "quote", "fortune", "funny"];
+    if (textTypes.includes(type)) {
+      contentEl.innerText = content;
+      contentEl.style.display = "block";
+    }
+
+    /* =========================
+       IMAGES / GIFS
+    ========================= */
+    if (imageUrl) {
+      if (imageUrl.includes("tenor.com/embed")) {
+        gifEl.src = imageUrl;
+        gifEl.style.display = "block";
+      } else {
+        imgEl.src = imageUrl;
+        imgEl.style.display = "block";
+        metaEl.style.display = "block";
+      }
+    }
+
+    /* =========================
+       SPOTIFY
+    ========================= */
+    if (type === "lyric" && spotifyUrl) {
+      contentEl.innerText = content;
+      contentEl.classList.add("lyric");
+      contentEl.style.display = "block";
+
+      spotifyEl.src = spotifyUrl.includes("/embed/")
+        ? spotifyUrl
+        : spotifyUrl.replace(
+            "https://open.spotify.com/",
+            "https://open.spotify.com/embed/"
+          );
+
+      spotifyEl.style.display = "block";
+    }
+  })
+  .catch(err => {
+    document.getElementById("content").innerText = "Error loading content.";
+    console.error(err);
+  });
+</script>
+
 </body>
 </html>
