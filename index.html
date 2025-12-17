@@ -185,7 +185,7 @@ return normalize(val).includes(preview);
     }
 
     const type = normalize(source.c[1]?.v ?? source.c[1]?.f);
-    const text = source.c[2]?.v || "";
+const bodyText = r.c[2]?.v || "";
     const image = source.c[3]?.v;
     const spotify = source.c[4]?.v;
 
